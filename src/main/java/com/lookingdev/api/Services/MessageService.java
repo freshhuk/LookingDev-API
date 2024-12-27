@@ -1,6 +1,7 @@
 package com.lookingdev.api.Services;
 
 import com.lookingdev.api.Domain.Enums.QueueAction;
+import com.lookingdev.api.Domain.Enums.QueueStatus;
 import com.lookingdev.api.Domain.Models.DeveloperDTOModel;
 import com.lookingdev.api.Domain.Models.MessageModel;
 import com.lookingdev.api.Domain.Models.MessageStatus;
@@ -29,6 +30,18 @@ public class MessageService {
     @Autowired
     public MessageService(RabbitTemplate rabbitTemplate){
         this.rabbitTemplate = rabbitTemplate;
+    }
+
+    public String initDataBase(){
+        try {
+
+            MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB, QueueAction.INIT_DB.toString());
+            sendStatusInQueue(queueAPIStatus,messageStatus);
+            return QueueStatus.DONE.toString();
+        } catch (Exception ex){
+            System.out.println("Error with init db " + ex);
+            return QueueStatus.BAD.toString();
+        }
     }
 
     public List<DeveloperDTOModel> getGitUsers(){
