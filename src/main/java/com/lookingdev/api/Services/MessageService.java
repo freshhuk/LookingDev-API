@@ -32,9 +32,12 @@ public class MessageService {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    /**
+     * Method init database with users
+     * @return Status code
+     */
     public String initDataBase(){
         try {
-
             MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB, QueueAction.INIT_DB.toString());
             sendStatusInQueue(queueAPIStatus,messageStatus);
             return QueueStatus.DONE.toString();
