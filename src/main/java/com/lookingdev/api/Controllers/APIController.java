@@ -23,7 +23,7 @@ public class APIController {
         this.service = service;
     }
 
-    @PostMapping("/init")
+    @GetMapping("/init")
     public ResponseEntity<String> initDataBase(){
        String result =  service.initDataBase();
        return result.equals(QueueStatus.DONE.toString()) ?
@@ -35,6 +35,7 @@ public class APIController {
     public ResponseEntity<?> getAll(){
         return null;
     }
+
     @GetMapping("/getGitHub")
     public ResponseEntity<String> getGitHubUsers(){
         List<DeveloperDTOModel> result = service.getGitUsers();
