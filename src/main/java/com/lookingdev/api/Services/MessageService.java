@@ -5,7 +5,6 @@ import com.lookingdev.api.Domain.Enums.QueueStatus;
 import com.lookingdev.api.Domain.Models.DeveloperDTOModel;
 import com.lookingdev.api.Domain.Models.MessageModel;
 import com.lookingdev.api.Domain.Models.MessageStatus;
-import com.rabbitmq.tools.json.JSONUtil;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +33,13 @@ public class MessageService {
     }
 
     /**
-     * Method init database with users
+     * Method init GiHub database with users
      *
      * @return Status code
      */
-    public String initDataBase() {
+    public String initGitDataBase() {
         try {
-            MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB, QueueAction.INIT_DB.toString());
+            MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB_GIT, QueueAction.INIT_DB_GIT.toString());
             sendStatusInQueue(queueAPIStatus, messageStatus);
             return QueueStatus.DONE.toString();
         } catch (Exception ex) {
@@ -49,6 +48,26 @@ public class MessageService {
         }
     }
 
+    /**
+     * Method init stack database with users
+     *
+     * @return Status code
+     */
+    public String initStackFataBase() {
+        try {
+            MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB_STACK_OVERFLOW, QueueAction.INIT_DB_STACK_OVERFLOW.toString());
+            sendStatusInQueue(queueAPIStatus, messageStatus);
+            return QueueStatus.DONE.toString();
+        } catch (Exception ex) {
+            System.out.println("Error with init db " + ex);
+            return QueueStatus.BAD.toString();
+        }
+    }
+    /**
+     * Get users from gitHub
+     * @param page number pge with users
+     * @return list with users
+     */
     public List<DeveloperDTOModel> getGitUsers(int page) {
         try {
             MessageStatus message = new MessageStatus(QueueAction.GET_GIT_DEV, page + "");
@@ -72,9 +91,66 @@ public class MessageService {
         }
     }
 
+    public List<DeveloperDTOModel> getStackOverflowUsers(int page) {
+        try {
+            MessageStatus message = new MessageStatus(QueueAction.GET_STACK_USER, page + "");
+
+            latch = new CountDownLatch(1);  // set waiting one status
+
+            sendStatusInQueue(queueAPIStatus, message);
+
+            boolean received = latch.await(5, TimeUnit.SECONDS); // wait 5 seconds until we get the status
+
+            if (!received) {
+                System.out.println("Status not received in time");
+                return null;
+            }
+            return !devModels.isEmpty() ? devModels : null;
+
+
+        } catch (Exception ex) {
+            System.out.println("Error with get gitHub users: " + ex);
+            return null;
+        }
+    }
+
+    public List<DeveloperDTOModel> getAllUsers() {
+        try {
+            MessageStatus message = new MessageStatus(QueueAction.GET_ALL, QueueAction.GET_ALL.toString());
+
+            latch = new CountDownLatch(1);  // set waiting one status
+
+            sendStatusInQueue(queueAPIStatus, message);
+
+            boolean received = latch.await(5, TimeUnit.SECONDS); // wait 5 seconds until we get the status
+
+            if (!received) {
+                System.out.println("Status not received in time");
+                return null;
+            }
+            return !devModels.isEmpty() ? devModels : null;
+
+
+        } catch (Exception ex) {
+            System.out.println("Error with get gitHub users: " + ex);
+            return null;
+        }
+    }
+
     /* Listeners for queue */
+    /* for GitHub */
     @RabbitListener(queues = "GitStatusQueue")
     public void getGitMessageInQueue(MessageModel models) {
+
+        if (models != null && !models.getDeveloperProfiles().isEmpty()) {
+            devModels = models.getDeveloperProfiles();
+            latch.countDown();
+            System.out.println("Developers was got: " + models.getDeveloperProfiles());
+        }
+    }
+    /* for Stack Overflow */
+    @RabbitListener(queues = "StackOverflowStatusQueue")
+    public void getStackMessageInQueue(MessageModel models) {
 
         if (models != null && !models.getDeveloperProfiles().isEmpty()) {
             devModels = models.getDeveloperProfiles();
@@ -92,4 +168,6 @@ public class MessageService {
     private void sendStatusInQueue(String queueName, MessageStatus message) {
         rabbitTemplate.convertAndSend(queueName, message);
     }
+
+
 }

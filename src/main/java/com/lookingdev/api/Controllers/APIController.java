@@ -20,9 +20,16 @@ public class APIController {
         this.service = service;
     }
 
-    @GetMapping("/init")
-    public ResponseEntity<String> initDataBase() {
-        String result = service.initDataBase();
+    @GetMapping("/initGit")
+    public ResponseEntity<String> initGitDataBase() {
+        String result = service.initGitDataBase();
+        return result.equals(QueueStatus.DONE.toString()) ?
+                ResponseEntity.ok("Init was done") :
+                ResponseEntity.badRequest().body("Error with init");
+    }
+    @GetMapping("/initStack")
+    public ResponseEntity<String> initStackDataBase() {
+        String result = service.initStackFataBase();
         return result.equals(QueueStatus.DONE.toString()) ?
                 ResponseEntity.ok("Init was done") :
                 ResponseEntity.badRequest().body("Error with init");
@@ -30,19 +37,23 @@ public class APIController {
 
     @GetMapping("/getAll")
     public ResponseEntity<?> getAll() {
-        return null;
+        List<DeveloperDTOModel> result = service.getAllUsers();
+        return result != null ? ResponseEntity.ok(result.toString())
+                : ResponseEntity.badRequest().body("Ops... Something was wrong");
     }
 
     @GetMapping("/getGitHub/{page}")
     public ResponseEntity<String> getGitHubUsers(@PathVariable int page) {
         List<DeveloperDTOModel> result = service.getGitUsers(page);
-        return !result.isEmpty() ? ResponseEntity.ok(result.toString())
+        return result != null ? ResponseEntity.ok(result.toString())
                 : ResponseEntity.badRequest().body("Ops... Something was wrong");
     }
 
-    @GetMapping("/getStackOverflow")
-    public ResponseEntity<?> getStackOverflowUsers() {
-        return null;
+    @GetMapping("/getStackOverflow/{page}")
+    public ResponseEntity<?> getStackOverflowUsers(@PathVariable int page) {
+        List<DeveloperDTOModel> result = service.getStackOverflowUsers(page);
+        return result != null ? ResponseEntity.ok(result.toString())
+                : ResponseEntity.badRequest().body("Ops... Something was wrong");
     }
 
 }
