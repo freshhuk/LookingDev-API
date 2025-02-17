@@ -31,7 +31,7 @@ public class APIController {
     public ResponseEntity<String> initStackDataBase() {
         String result = service.initStackFataBase();
         return result.equals(QueueStatus.DONE.toString()) ?
-                ResponseEntity.ok("Init was done") :
+                ResponseEntity.ok("Init was started") :
                 ResponseEntity.badRequest().body("Error with init");
     }
 
@@ -56,4 +56,17 @@ public class APIController {
                 : ResponseEntity.badRequest().body("Ops... Something was wrong");
     }
 
+
+    /* End-points for getting  init status */
+
+    /**
+     * Method returns initialization status of StackOverflow microservice
+     * @return initialization status
+     */
+    @GetMapping("/getStatusStack")
+    public ResponseEntity<String> getInitStatusStack(){
+        String status = service.getInitStatusStackOverflow();
+        return !status.equals(QueueStatus.BAD.toString()) ? ResponseEntity.ok(status)
+                : ResponseEntity.badRequest().body("Error with getting status");
+    }
 }

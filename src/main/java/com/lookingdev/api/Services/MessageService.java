@@ -21,8 +21,10 @@ public class MessageService {
     @Value("${queueAPIStatus.name}")
     private String queueAPIStatus;
 
+
     private final RabbitTemplate rabbitTemplate;
     private List<DeveloperDTOModel> devModels;
+    private String initStatusStackOverflow = "";
 
     private CountDownLatch latch;
 
@@ -31,6 +33,36 @@ public class MessageService {
     public MessageService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
+
+
+    /**
+     * Method returns initialization status of StackOverflow microservice
+     * @return initialization status
+     */
+    public String getInitStatusStackOverflow(){
+        try {
+            MessageStatus messageStatus = new MessageStatus(QueueAction.GET_INIT_STATUS_STACK_OVERFLOW, QueueAction.GET_INIT_STATUS_STACK_OVERFLOW.toString());
+
+            latch = new CountDownLatch(1);
+
+            sendStatusInQueue(queueAPIStatus, messageStatus);
+
+            boolean received = latch.await(5, TimeUnit.SECONDS); // wait 5 seconds until we get the status
+
+            if (!received) {
+                System.out.println("Status not received in time");
+                return null;
+            }
+            return !initStatusStackOverflow.isEmpty() ? initStatusStackOverflow : QueueStatus.BAD.toString();
+
+        } catch (Exception ex) {
+            System.out.println("Error getting init status " + ex);
+            return QueueStatus.BAD.toString();
+        }
+    }
+
+
+
 
     /**
      * Method init GiHub database with users
@@ -156,6 +188,16 @@ public class MessageService {
             devModels = models.getDeveloperProfiles();
             latch.countDown();
             System.out.println("Developers was got: " + models.getDeveloperProfiles());
+        }
+    }
+    /* for init status StackOverflow */
+    @RabbitListener(queues = "StackOverflowInitStatusQueue")
+    public void getInitStatusStackMessageInQueue(MessageStatus status) {
+
+        if (status != null){
+            initStatusStackOverflow = status.getStatus();
+            latch.countDown();
+            System.out.println("Init status StackOverflow was got");
         }
     }
 

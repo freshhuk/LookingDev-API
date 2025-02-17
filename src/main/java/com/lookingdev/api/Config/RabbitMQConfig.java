@@ -32,6 +32,8 @@ public class RabbitMQConfig {
     @Value("${queueAuthStatus.name}")
     private String queueAuthStatus;
 
+    @Value("${queueStackOverflowStatus.int.name}")
+    private String queueStackOverflowInitStatus;
 
     /* Queues beans */
     @Bean
@@ -50,7 +52,10 @@ public class RabbitMQConfig {
     public Queue queueAuthStatus(){
         return new Queue(queueAuthStatus, false);
     }
-
+    @Bean
+    public Queue queueStackOverflowInitStatus(){
+        return new Queue(queueStackOverflowInitStatus, false);
+    }
 
     @Bean
     public CachingConnectionFactory connectionFactory(){
