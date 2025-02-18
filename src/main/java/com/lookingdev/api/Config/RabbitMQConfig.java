@@ -35,6 +35,9 @@ public class RabbitMQConfig {
     @Value("${queueStackOverflowStatus.int.name}")
     private String queueStackOverflowInitStatus;
 
+    @Value("${queueGitStatus.init.name}")
+    private String queueGitInitStatus;
+
     /* Queues beans */
     @Bean
     public Queue queueAPIStatus(){
@@ -55,6 +58,10 @@ public class RabbitMQConfig {
     @Bean
     public Queue queueStackOverflowInitStatus(){
         return new Queue(queueStackOverflowInitStatus, false);
+    }
+    @Bean
+    public Queue queueGitInitStatus(){
+        return new Queue(queueGitInitStatus, false);
     }
 
     @Bean

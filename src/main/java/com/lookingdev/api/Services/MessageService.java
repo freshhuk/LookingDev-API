@@ -25,6 +25,7 @@ public class MessageService {
     private final RabbitTemplate rabbitTemplate;
     private List<DeveloperDTOModel> devModels;
     private String initStatusStackOverflow = "";
+    private String initStatusGitHub = "";
 
     private CountDownLatch latch;
 
@@ -61,7 +62,31 @@ public class MessageService {
         }
     }
 
+    /**
+     * Method returns initialization status of GitHub microservice
+     * @return initialization status
+     */
+    public String getInitStatusGitHub() {
+        try {
+            MessageStatus messageStatus = new MessageStatus(QueueAction.GET_INIT_STATUS_GIT, QueueAction.GET_INIT_STATUS_GIT.toString());
 
+            latch = new CountDownLatch(1);
+
+            sendStatusInQueue(queueAPIStatus, messageStatus);
+
+            boolean received = latch.await(5, TimeUnit.SECONDS); // wait 5 seconds until we get the status
+
+            if (!received) {
+                System.out.println("Status not received in time");
+                return null;
+            }
+            return !initStatusGitHub.isEmpty() ? initStatusGitHub : QueueStatus.BAD.toString();
+
+        } catch (Exception ex) {
+            System.out.println("Error getting init status " + ex);
+            return QueueStatus.BAD.toString();
+        }
+    }
 
 
     /**
@@ -69,7 +94,7 @@ public class MessageService {
      *
      * @return Status code
      */
-    public String initGitDataBase() {
+    public String initGitDatabase() {
         try {
             MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB_GIT, QueueAction.INIT_DB_GIT.toString());
             sendStatusInQueue(queueAPIStatus, messageStatus);
@@ -85,7 +110,7 @@ public class MessageService {
      *
      * @return Status code
      */
-    public String initStackFataBase() {
+    public String initStackDatabase() {
         try {
             MessageStatus messageStatus = new MessageStatus(QueueAction.INIT_DB_STACK_OVERFLOW, QueueAction.INIT_DB_STACK_OVERFLOW.toString());
             sendStatusInQueue(queueAPIStatus, messageStatus);
@@ -198,6 +223,17 @@ public class MessageService {
             initStatusStackOverflow = status.getStatus();
             latch.countDown();
             System.out.println("Init status StackOverflow was got");
+        }
+    }
+
+    /* for init status GitHub */
+    @RabbitListener(queues = "GitInitStatusQueue")
+    public void getInitStatusGitMessageInQueue(MessageStatus status) {
+
+        if (status != null){
+            initStatusGitHub = status.getStatus();
+            latch.countDown();
+            System.out.println("Init status GitHub was got");
         }
     }
 

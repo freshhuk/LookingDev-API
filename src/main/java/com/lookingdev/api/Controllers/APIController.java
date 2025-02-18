@@ -22,14 +22,14 @@ public class APIController {
 
     @GetMapping("/initGit")
     public ResponseEntity<String> initGitDataBase() {
-        String result = service.initGitDataBase();
+        String result = service.initGitDatabase();
         return result.equals(QueueStatus.DONE.toString()) ?
-                ResponseEntity.ok("Init was done") :
+                ResponseEntity.ok("Init was started") :
                 ResponseEntity.badRequest().body("Error with init");
     }
     @GetMapping("/initStack")
     public ResponseEntity<String> initStackDataBase() {
-        String result = service.initStackFataBase();
+        String result = service.initStackDatabase();
         return result.equals(QueueStatus.DONE.toString()) ?
                 ResponseEntity.ok("Init was started") :
                 ResponseEntity.badRequest().body("Error with init");
@@ -69,4 +69,16 @@ public class APIController {
         return !status.equals(QueueStatus.BAD.toString()) ? ResponseEntity.ok(status)
                 : ResponseEntity.badRequest().body("Error with getting status");
     }
+
+    /**
+     * Method returns initialization status of GitHub microservice
+     * @return initialization status
+     */
+    @GetMapping("/getStatusGit")
+    public ResponseEntity<String> getInitStatusGit(){
+        String status = service.getInitStatusGitHub();
+        return !status.equals(QueueStatus.BAD.toString()) ? ResponseEntity.ok(status)
+                : ResponseEntity.badRequest().body("Error with getting status");
+    }
+
 }
