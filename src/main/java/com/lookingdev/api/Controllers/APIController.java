@@ -35,9 +35,9 @@ public class APIController {
                 ResponseEntity.badRequest().body("Error with init");
     }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<?> getAll() {
-        List<DeveloperDTOModel> result = service.getAllUsers();
+    @GetMapping("/getAll/{page}")
+    public ResponseEntity<?> getAll(@PathVariable int page) {
+        List<DeveloperDTOModel> result = service.getAllUsers(page);
         return result != null ? ResponseEntity.ok(result.toString())
                 : ResponseEntity.badRequest().body("Ops... Something was wrong");
     }

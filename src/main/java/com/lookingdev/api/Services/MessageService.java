@@ -171,9 +171,9 @@ public class MessageService {
         }
     }
 
-    public List<DeveloperDTOModel> getAllUsers() {
+    public List<DeveloperDTOModel> getAllUsers(int numPage) {
         try {
-            MessageStatus message = new MessageStatus(QueueAction.GET_ALL, QueueAction.GET_ALL.toString());
+            MessageStatus message = new MessageStatus(QueueAction.GET_ALL, numPage + "");
 
             latch = new CountDownLatch(1);  // set waiting one status
 
