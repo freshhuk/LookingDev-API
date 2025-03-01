@@ -81,4 +81,9 @@ public class APIController {
                 : ResponseEntity.badRequest().body("Error with getting status");
     }
 
+    @GetMapping("/welcome/{name}")
+    public ResponseEntity<String> welcomeMessage(@PathVariable String name){
+        return ResponseEntity.ok("Hi, " + name + "!");
+    }
+
 }
