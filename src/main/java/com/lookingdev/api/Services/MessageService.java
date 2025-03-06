@@ -122,7 +122,7 @@ public class MessageService {
     }
     /**
      * Get users from gitHub
-     * @param page number pge with users
+     * @param page number page with users
      * @return list with users
      */
     public List<DeveloperDTOModel> getGitUsers(int page) {
@@ -148,6 +148,11 @@ public class MessageService {
         }
     }
 
+    /**
+     * Get users from Stack Overflow
+     * @param page number page with users
+     * @return list with users
+     */
     public List<DeveloperDTOModel> getStackOverflowUsers(int page) {
         try {
             MessageStatus message = new MessageStatus(QueueAction.GET_STACK_USER, page + "");
@@ -171,6 +176,11 @@ public class MessageService {
         }
     }
 
+    /**
+     * Get users from gitHub and Stack Overflow
+     * @param numPage number pge with users
+     * @return list with users
+     */
     public List<DeveloperDTOModel> getAllUsers(int numPage) {
         try {
             MessageStatus message = new MessageStatus(QueueAction.GET_ALL, numPage + "");
@@ -193,6 +203,7 @@ public class MessageService {
             return null;
         }
     }
+
 
     /* Listeners for queue */
     /* for GitHub */
