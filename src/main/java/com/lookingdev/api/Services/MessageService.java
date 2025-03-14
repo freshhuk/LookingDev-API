@@ -210,7 +210,7 @@ public class MessageService {
     @RabbitListener(queues = "GitStatusQueue")
     public void getGitMessageInQueue(MessageModel models) {
 
-        if (models != null && !models.getDeveloperProfiles().isEmpty()) {
+        if ( models != null && models.getAction().equals(QueueAction.GET_GIT_DEV) && !models.getDeveloperProfiles().isEmpty()) {
             devModels = models.getDeveloperProfiles();
             latch.countDown();
             System.out.println("Developers was got: " + models.getDeveloperProfiles());
@@ -220,7 +220,7 @@ public class MessageService {
     @RabbitListener(queues = "StackOverflowStatusQueue")
     public void getStackMessageInQueue(MessageModel models) {
 
-        if (models != null && !models.getDeveloperProfiles().isEmpty()) {
+        if (models != null && models.getAction().equals(QueueAction.GET_STACK_USER) && !models.getDeveloperProfiles().isEmpty()) {
             devModels = models.getDeveloperProfiles();
             latch.countDown();
             System.out.println("Developers was got: " + models.getDeveloperProfiles());
